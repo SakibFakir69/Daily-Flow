@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
 import { useCallback, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +14,7 @@ import { tasksRepo, type Task } from '@/db';
 import { useTaskList, type TaskView } from '@/hooks/use-task-list';
 import { startOfTomorrowMs } from '@/lib/dates';
 import { hapticComplete } from '@/lib/haptics';
+import { openTask } from '@/lib/navigation';
 import { resyncAllReminders } from '@/notifications';
 
 interface Props {
@@ -129,7 +129,7 @@ export function TaskViewScreen({
           onToggleComplete={handleToggleComplete}
           onDelete={handleDelete}
           onReschedule={handleReschedule}
-          onPressTask={(task) => router.push({ pathname: '/task/[id]', params: { id: task.id } })}
+          onPressTask={(task) => openTask(task.id)}
           empty={<EmptyState icon={emptyIcon} title={emptyTitle} subtitle={emptySubtitle} />}
         />
         <QuickAddBar

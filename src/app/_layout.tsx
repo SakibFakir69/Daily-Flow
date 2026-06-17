@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { UndoProvider } from '@/components/undo-snackbar';
-import { Colors } from '@/constants/theme';
 import { useDatabaseReady } from '@/hooks/use-database';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useTheme, useThemeMode } from '@/hooks/use-theme';
@@ -73,10 +72,21 @@ function AppShell() {
               ),
             }}
           />
+          <Tabs.Screen
+            name="habits"
+            options={{
+              title: t('tab.habits'),
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="flame-outline" color={color} size={size} />
+              ),
+            }}
+          />
           {/* Routes reachable via navigation, not shown as tabs. */}
           <Tabs.Screen name="search" options={{ href: null }} />
           <Tabs.Screen name="settings" options={{ href: null }} />
           <Tabs.Screen name="task" options={{ href: null }} />
+          <Tabs.Screen name="pomodoro" options={{ href: null }} />
+          <Tabs.Screen name="stats" options={{ href: null }} />
           <Tabs.Screen name="explore" options={{ href: null }} />
         </Tabs>
       </UndoProvider>

@@ -6,6 +6,7 @@ import {
   isTomorrow,
   isYesterday,
   startOfDay,
+  startOfWeek,
 } from 'date-fns';
 
 /**
@@ -25,6 +26,11 @@ export function startOfTodayMs(now: number = Date.now()): number {
  */
 export function startOfTomorrowMs(now: number = Date.now()): number {
   return startOfDay(addDays(now, 1)).getTime();
+}
+
+/** Start of the current week (Sunday) as epoch ms — boundary for weekly stats. */
+export function startOfWeekMs(now: number = Date.now()): number {
+  return startOfWeek(now, { weekStartsOn: 0 }).getTime();
 }
 
 /** True when `ms` is strictly before the start of today (i.e. overdue). */

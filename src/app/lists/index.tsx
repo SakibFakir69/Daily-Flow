@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +13,7 @@ import type { List } from '@/db';
 import { useLists } from '@/hooks/use-lists';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n/use-translation';
+import { openList } from '@/lib/navigation';
 
 export default function ListsScreen() {
   const theme = useTheme();
@@ -57,7 +57,7 @@ export default function ListsScreen() {
           lists.map((list) => (
             <Pressable
               key={list.id}
-              onPress={() => router.push({ pathname: '/lists/[id]', params: { id: list.id } })}
+              onPress={() => openList(list.id)}
               onLongPress={() => openEdit(list)}
               style={[styles.listRow, { backgroundColor: theme.card, borderColor: theme.border }]}
               accessibilityRole="button"

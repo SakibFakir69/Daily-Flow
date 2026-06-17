@@ -324,6 +324,16 @@ export async function searchTasks(query: string): Promise<Task[]> {
   return rows.map(mapRow);
 }
 
+/** Count of tasks completed at or after `sinceMs` (for the stats screen). */
+export async function getCompletedCountSince(sinceMs: number): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) AS count FROM tasks WHERE completed_at IS NOT NULL AND completed_at >= $since',
+    { $since: sinceMs }
+  );
+  return row?.count ?? 0;
+}
+
 /** Incomplete top-level task counts per list id (Inbox/null is omitted). */
 export async function getIncompleteCountsByList(): Promise<Record<string, number>> {
   const db = await getDatabase();

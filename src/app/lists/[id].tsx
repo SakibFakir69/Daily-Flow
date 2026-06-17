@@ -13,6 +13,7 @@ import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Spacing } from '@/constants/theme';
 import { listsRepo, tasksRepo, type List, type Task } from '@/db';
 import { useTheme } from '@/hooks/use-theme';
+import { openTask } from '@/lib/navigation';
 import { resyncAllReminders } from '@/notifications';
 
 export default function ListDetailScreen() {
@@ -99,6 +100,7 @@ export default function ListDetailScreen() {
               tasks={tasks}
               onReorder={handleReorder}
               onToggleComplete={handleToggleComplete}
+              onPressTask={(task) => openTask(task.id)}
             />
           </ScrollView>
         )}

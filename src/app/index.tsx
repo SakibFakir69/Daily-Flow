@@ -1,5 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { TaskViewScreen } from '@/components/task-view-screen';
@@ -7,6 +6,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n/use-translation';
 import { formatHeaderDate, startOfTodayMs } from '@/lib/dates';
+import { openSearch, openSettings } from '@/lib/navigation';
 
 /**
  * Today: overdue + due-today tasks aggregated across all lists. Quick-added
@@ -28,10 +28,10 @@ export default function TodayScreen() {
       emptySubtitle={t('today.empty.subtitle')}
       headerRight={
         <View style={{ flexDirection: 'row', gap: Spacing.three }}>
-          <Pressable onPress={() => router.push('/search')} hitSlop={8} accessibilityLabel="Search">
+          <Pressable onPress={openSearch} hitSlop={8} accessibilityLabel="Search">
             <Ionicons name="search" size={22} color={theme.text} />
           </Pressable>
-          <Pressable onPress={() => router.push('/settings')} hitSlop={8} accessibilityLabel="Settings">
+          <Pressable onPress={openSettings} hitSlop={8} accessibilityLabel="Settings">
             <Ionicons name="settings-outline" size={22} color={theme.text} />
           </Pressable>
         </View>
