@@ -1,16 +1,22 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { iapSupportedPlatform, useRemoveAds } from '@/iap';
 import { ScreenHeader } from '@/components/screen-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
-import type { LanguagePreference, ThemePreference } from '@/db';
+import { settingsRepo, type LanguagePreference, type ThemePreference } from '@/db';
 import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n/use-translation';
+import { exportBackup, importBackup } from '@/lib/backup';
+import { resyncAllReminders } from '@/notifications';
 import { useSettings } from '@/settings/settings-context';
+
+const backupSupported = Platform.OS !== 'web';
 
 const THEME_OPTIONS: { value: ThemePreference; labelKey: 'settings.theme.system' | 'settings.theme.light' | 'settings.theme.dark' }[] = [
   { value: 'system', labelKey: 'settings.theme.system' },
@@ -28,6 +34,63 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { settings, update } = useSettings();
+  const removeAds = useRemoveAds();
+
+  const buyLabel =
+    removeAds.price !== null
+      ? `${t('settings.removeads.buy')} · ${removeAds.price}`
+      : t('settings.removeads.buy');
+
+  const [dataBusy, setDataBusy] = useState(false);
+
+  const lastBackupLabel =
+    settings.lastBackupAt !== null
+      ? `${t('settings.backup.last')}: ${new Date(settings.lastBackupAt).toLocaleDateString()}`
+      : t('settings.backup.never');
+
+  const handleExport = async () => {
+    if (dataBusy) return;
+    setDataBusy(true);
+    const result = await exportBackup();
+    setDataBusy(false);
+    if (!result.ok && result.reason === 'error') {
+      Alert.alert(t('settings.backup.error.title'), t('settings.backup.error.message'));
+    }
+  };
+
+  const runImport = async () => {
+    setDataBusy(true);
+    const result = await importBackup();
+    if (result.ok) {
+      // Reload state that won't refetch on its own, then resync reminders.
+      const reloaded = await settingsRepo.getSettings();
+      await update(reloaded);
+      await resyncAllReminders();
+    }
+    setDataBusy(false);
+
+    if (result.ok) {
+      Alert.alert(t('settings.restore.done.title'), t('settings.restore.done.message'));
+    } else if (result.reason === 'invalid') {
+      Alert.alert(t('settings.restore.error.title'), t('settings.restore.error.invalid'));
+    } else if (result.reason === 'error') {
+      Alert.alert(t('settings.restore.error.title'), t('settings.backup.error.message'));
+    }
+  };
+
+  const handleImport = () => {
+    if (dataBusy) return;
+    Alert.alert(t('settings.restore.confirm.title'), t('settings.restore.confirm.message'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('settings.restore'),
+        style: 'destructive',
+        onPress: () => {
+          runImport().catch((error) => console.error('[DailyFlow] import handler:', error));
+        },
+      },
+    ]);
+  };
 
   return (
     <ThemedView style={styles.container}>
@@ -98,6 +161,119 @@ export default function SettingsScreen() {
             })}
           </View>
         </View>
+
+        {iapSupportedPlatform ? (
+          <>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.sectionLabel}>
+              {t('settings.purchases')}
+            </ThemedText>
+
+            <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <View style={styles.removeAdsHeader}>
+                <Ionicons
+                  name={removeAds.purchased ? 'checkmark-circle' : 'remove-circle-outline'}
+                  size={22}
+                  color={removeAds.purchased ? theme.tint : theme.text}
+                />
+                <ThemedText type="default" style={styles.rowLabel}>
+                  {t('settings.removeads')}
+                </ThemedText>
+              </View>
+
+              <ThemedText type="small" themeColor="textSecondary">
+                {removeAds.purchased
+                  ? t('settings.removeads.purchased')
+                  : t('settings.removeads.subtitle')}
+              </ThemedText>
+
+              {removeAds.purchased ? null : (
+                <>
+                  <Pressable
+                    onPress={removeAds.buy}
+                    disabled={removeAds.busy || !removeAds.available}
+                    style={[
+                      styles.buyButton,
+                      {
+                        backgroundColor: theme.tint,
+                        opacity: removeAds.busy || !removeAds.available ? 0.5 : 1,
+                      },
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityState={{ disabled: removeAds.busy || !removeAds.available }}>
+                    {removeAds.busy ? (
+                      <ActivityIndicator color={theme.background} />
+                    ) : (
+                      <ThemedText type="default" style={{ color: theme.background, fontWeight: '600' }}>
+                        {buyLabel}
+                      </ThemedText>
+                    )}
+                  </Pressable>
+
+                  <Pressable
+                    onPress={removeAds.restore}
+                    disabled={removeAds.busy}
+                    hitSlop={8}
+                    style={styles.restoreButton}
+                    accessibilityRole="button">
+                    <ThemedText type="small" style={{ color: theme.tint }}>
+                      {t('settings.removeads.restore')}
+                    </ThemedText>
+                  </Pressable>
+
+                  {removeAds.available ? null : (
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {t('settings.removeads.unavailable')}
+                    </ThemedText>
+                  )}
+                </>
+              )}
+            </View>
+          </>
+        ) : null}
+
+        {backupSupported ? (
+          <>
+            <ThemedText type="small" themeColor="textSecondary" style={styles.sectionLabel}>
+              {t('settings.data')}
+            </ThemedText>
+
+            <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <ThemedText type="small" themeColor="textSecondary">
+                {lastBackupLabel}
+              </ThemedText>
+
+              <View style={styles.dataButtons}>
+                <Pressable
+                  onPress={handleExport}
+                  disabled={dataBusy}
+                  style={[styles.dataButton, { backgroundColor: theme.tint, opacity: dataBusy ? 0.5 : 1 }]}
+                  accessibilityRole="button">
+                  <Ionicons name="share-outline" size={18} color={theme.background} />
+                  <ThemedText type="small" style={{ color: theme.background, fontWeight: '600' }}>
+                    {t('settings.backup')}
+                  </ThemedText>
+                </Pressable>
+
+                <Pressable
+                  onPress={handleImport}
+                  disabled={dataBusy}
+                  style={[
+                    styles.dataButton,
+                    styles.dataButtonOutline,
+                    { borderColor: theme.tint, opacity: dataBusy ? 0.5 : 1 },
+                  ]}
+                  accessibilityRole="button">
+                  <Ionicons name="download-outline" size={18} color={theme.tint} />
+                  <ThemedText type="small" style={{ color: theme.tint, fontWeight: '600' }}>
+                    {t('settings.restore')}
+                  </ThemedText>
+                </Pressable>
+              </View>
+
+              {dataBusy ? <ActivityIndicator color={theme.tint} /> : null}
+            </View>
+          </>
+        ) : null}
       </ScrollView>
     </ThemedView>
   );
@@ -140,5 +316,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.two,
     borderRadius: Radius.sm,
+  },
+  removeAdsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  buyButton: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    borderRadius: Radius.md,
+  },
+  restoreButton: {
+    alignSelf: 'center',
+    paddingVertical: Spacing.one,
+  },
+  dataButtons: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  dataButton: {
+    flex: 1,
+    minHeight: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.one,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.two,
+    borderRadius: Radius.md,
+  },
+  dataButtonOutline: {
+    backgroundColor: 'transparent',
+    borderWidth: StyleSheet.hairlineWidth,
   },
 });

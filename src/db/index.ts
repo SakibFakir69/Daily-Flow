@@ -13,3 +13,5 @@ export * as listsRepo from './repositories/lists';
 export * as settingsRepo from './repositories/settings';
 export * as habitsRepo from './repositories/habits';
 export * as pomodoroRepo from './repositories/pomodoro';
+export * as backupRepo from './repositories/backup';
+export type { BackupData } from './repositories/backup';

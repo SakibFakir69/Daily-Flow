@@ -1,8 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { DarkTheme, DefaultTheme, Tabs, ThemeProvider } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { initializeAds, useAdsEnabled } from '@/ads';
 import { UndoProvider } from '@/components/undo-snackbar';
 import { useDatabaseReady } from '@/hooks/use-database';
 import { useNotifications } from '@/hooks/use-notifications';
@@ -16,6 +18,15 @@ function NotificationsBridge() {
   return null;
 }
 
+/** Initializes the ads SDK once, only for the free tier (no-op once purchased). */
+function AdsBridge() {
+  const adsEnabled = useAdsEnabled();
+  useEffect(() => {
+    if (adsEnabled) initializeAds();
+  }, [adsEnabled]);
+  return null;
+}
+
 /** The themed navigator. Lives under SettingsProvider so theme + language apply. */
 function AppShell() {
   const mode = useThemeMode();
@@ -26,6 +37,7 @@ function AppShell() {
     <ThemeProvider value={mode === 'dark' ? DarkTheme : DefaultTheme}>
       <UndoProvider>
         <NotificationsBridge />
+        <AdsBridge />
         <Tabs
           screenOptions={{
             headerShown: false,

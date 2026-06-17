@@ -3,6 +3,7 @@ import { useCallback, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AdCard, maybeShowInterstitial, useAdsEnabled } from '@/ads';
 import { EmptyState } from '@/components/empty-state';
 import { QuickAddBar } from '@/components/quick-add-bar';
 import { ScreenHeader } from '@/components/screen-header';
@@ -51,6 +52,7 @@ export function TaskViewScreen({
   const insets = useSafeAreaInsets();
   const { tasks, listsById, refresh, hide, unhide, forget } = useTaskList(view);
   const { run } = useUndo();
+  const adsEnabled = useAdsEnabled();
 
   const handleToggleComplete = useCallback(
     (task: Task) => {
@@ -66,6 +68,9 @@ export function TaskViewScreen({
             forget(task.id);
             await refresh();
             await resyncAllReminders();
+            // Completing a task is the natural break point for a capped
+            // interstitial — the manager enforces the frequency caps.
+            maybeShowInterstitial(adsEnabled);
           },
           onUndo: () => unhide(task.id),
         });
@@ -77,7 +82,7 @@ export function TaskViewScreen({
           .catch((error) => console.error('[DailyFlow] Failed to update task:', error));
       }
     },
-    [hide, unhide, forget, run, refresh]
+    [hide, unhide, forget, run, refresh, adsEnabled]
   );
 
   const handleDelete = useCallback(
@@ -132,6 +137,7 @@ export function TaskViewScreen({
           onPressTask={(task) => openTask(task.id)}
           empty={<EmptyState icon={emptyIcon} title={emptyTitle} subtitle={emptySubtitle} />}
         />
+        {adsEnabled ? <AdCard /> : null}
         <QuickAddBar
           onAdded={refresh}
           defaultDueAt={defaultDueAt}
