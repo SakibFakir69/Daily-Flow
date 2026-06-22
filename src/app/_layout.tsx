@@ -29,7 +29,6 @@ function OnboardingGate() {
   if (!loaded || settings.onboardingCompletedAt !== null) return null;
   return <OnboardingOverlay onDone={() => update({ onboardingCompletedAt: Date.now() })} />;
 }
-
 /** Initializes the ads SDK once, only for the free tier (no-op once purchased). */
 function AdsBridge() {
   const adsEnabled = useAdsEnabled();
