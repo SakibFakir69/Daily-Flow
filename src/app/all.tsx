@@ -6,7 +6,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n/use-translation';
 import { openSearch } from '@/lib/navigation';
 
-
 export default function AllScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
