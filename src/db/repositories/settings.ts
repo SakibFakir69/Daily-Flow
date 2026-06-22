@@ -17,6 +17,7 @@ function mapRow(row: SettingsRow): Settings {
     lastBackupAt: row.last_backup_at,
     quietHoursStart: row.quiet_hours_start,
     quietHoursEnd: row.quiet_hours_end,
+    onboardingCompletedAt: row.onboarding_completed_at,
   };
 }
 
@@ -37,6 +38,7 @@ export async function getSettings(): Promise<Settings> {
     lastBackupAt: null,
     quietHoursStart: null,
     quietHoursEnd: null,
+    onboardingCompletedAt: null,
   };
 }
 
@@ -49,6 +51,7 @@ const UPDATE_COLUMNS: Record<keyof Settings, string> = {
   lastBackupAt: 'last_backup_at',
   quietHoursStart: 'quiet_hours_start',
   quietHoursEnd: 'quiet_hours_end',
+  onboardingCompletedAt: 'onboarding_completed_at',
 };
 
 /** Patches the single settings row. Omitted keys are left unchanged. */

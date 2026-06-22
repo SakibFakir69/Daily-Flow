@@ -23,6 +23,7 @@ import { startOfTodayMs, startOfTomorrowMs } from '@/lib/dates';
 import { openPomodoro } from '@/lib/navigation';
 import { parseRecurrence } from '@/lib/recurrence';
 import { resyncAllReminders } from '@/notifications';
+import { refreshTodayWidget } from '@/widgets';
 
 const PRIORITIES: Priority[] = [Priority.None, Priority.Medium, Priority.High];
 
@@ -71,6 +72,7 @@ export default function TaskDetailScreen() {
       if (!id) return;
       await tasksRepo.updateTask(id, changes);
       if (resync) resyncAllReminders().catch(() => {});
+      refreshTodayWidget();
       await load();
     },
     [id, load]
@@ -102,6 +104,7 @@ export default function TaskDetailScreen() {
     if (!id) return;
     await tasksRepo.deleteTask(id);
     resyncAllReminders().catch(() => {});
+    refreshTodayWidget();
     router.back();
   };
 

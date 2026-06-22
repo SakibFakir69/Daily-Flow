@@ -17,10 +17,17 @@ const DEFAULT_SETTINGS: Settings = {
   lastBackupAt: null,
   quietHoursStart: null,
   quietHoursEnd: null,
+  onboardingCompletedAt: null,
 };
 
 interface SettingsContextValue {
   settings: Settings;
+  /**
+   * False until the persisted row has loaded. Gate first-run UI (onboarding) on
+   * this so the DB value — not the optimistic defaults — decides what shows,
+   * avoiding a one-frame flash for returning users.
+   */
+  loaded: boolean;
   /** Patch one or more settings; persists to the DB and updates context. */
   update: (patch: Partial<Settings>) => Promise<void>;
 }
@@ -34,15 +41,19 @@ const SettingsContext = createContext<SettingsContextValue | null>(null);
  */
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
     settingsRepo
       .getSettings()
-      .then((loaded) => {
-        if (active) setSettings(loaded);
+      .then((loadedSettings) => {
+        if (active) setSettings(loadedSettings);
       })
-      .catch((error) => console.error('[DailyFlow] Failed to load settings:', error));
+      .catch((error) => console.error('[DailyFlow] Failed to load settings:', error))
+      .finally(() => {
+        if (active) setLoaded(true);
+      });
     return () => {
       active = false;
     };
@@ -58,7 +69,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = useMemo(() => ({ settings, update }), [settings, update]);
+  const value = useMemo(() => ({ settings, loaded, update }), [settings, loaded, update]);
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
@@ -67,7 +78,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 export function useSettings(): SettingsContextValue {
   const ctx = useContext(SettingsContext);
   if (!ctx) {
-    return { settings: DEFAULT_SETTINGS, update: async () => {} };
+    return { settings: DEFAULT_SETTINGS, loaded: true, update: async () => {} };
   }
   return ctx;
 }

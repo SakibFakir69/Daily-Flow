@@ -89,6 +89,8 @@ export interface Settings {
   /** Quiet-hours window as minutes-from-midnight (0–1439), or null if disabled. */
   quietHoursStart: number | null;
   quietHoursEnd: number | null;
+  /** Epoch ms the first-run onboarding was completed/dismissed; null = never seen. */
+  onboardingCompletedAt: number | null;
 }
 
 // ── Raw row types (snake_case, as returned by SQLite) ────────────────────────
@@ -139,4 +141,5 @@ export interface SettingsRow {
   last_backup_at: number | null;
   quiet_hours_start: number | null;
   quiet_hours_end: number | null;
+  onboarding_completed_at: number | null;
 }

@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { iapSupportedPlatform, useRemoveAds } from '@/iap';
@@ -15,6 +15,7 @@ import { useTranslation } from '@/i18n/use-translation';
 import { exportBackup, importBackup } from '@/lib/backup';
 import { resyncAllReminders } from '@/notifications';
 import { useSettings } from '@/settings/settings-context';
+import { refreshTodayWidget } from '@/widgets';
 
 const backupSupported = Platform.OS !== 'web';
 
@@ -66,6 +67,7 @@ export default function SettingsScreen() {
       const reloaded = await settingsRepo.getSettings();
       await update(reloaded);
       await resyncAllReminders();
+      await refreshTodayWidget();
     }
     setDataBusy(false);
 
@@ -161,6 +163,30 @@ export default function SettingsScreen() {
             })}
           </View>
         </View>
+
+        <ThemedText type="small" themeColor="textSecondary" style={styles.sectionLabel}>
+          {t('settings.general')}
+        </ThemedText>
+
+        <Pressable
+          onPress={() => {
+            update({ onboardingCompletedAt: null });
+            router.back();
+          }}
+          style={[styles.card, styles.introRow, { backgroundColor: theme.card, borderColor: theme.border }]}
+          accessibilityRole="button"
+          accessibilityLabel={t('settings.intro.replay')}>
+          <Ionicons name="play-circle-outline" size={22} color={theme.tint} />
+          <View style={styles.introText}>
+            <ThemedText type="default" style={styles.rowLabel}>
+              {t('settings.intro.replay')}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {t('settings.intro.replay.subtitle')}
+            </ThemedText>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={theme.textSecondary} />
+        </Pressable>
 
         {iapSupportedPlatform ? (
           <>
@@ -274,6 +300,27 @@ export default function SettingsScreen() {
             </View>
           </>
         ) : null}
+        {/* PAID */}
+        {__DEV__ && (
+          <Pressable
+            onPress={() =>
+              update({ purchaseState: settings.purchaseState === 'free' ? 'purchased' : 'free' })
+            }
+            style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
+            <ThemedText type="small" themeColor="textSecondary">
+              DEV: purchaseState = {settings.purchaseState} (tap to toggle)
+            </ThemedText>
+          </Pressable>
+        )}
+
+        <Pressable
+          onPress={() => Linking.openURL('https://www.linkedin.com/company/seven-venture-labs/')}
+          style={styles.builtBy}
+          accessibilityRole="link">
+          <ThemedText type="small" themeColor="textSecondary">
+            Built by Seven Venture Labs
+          </ThemedText>
+        </Pressable>
       </ScrollView>
     </ThemedView>
   );
@@ -317,6 +364,15 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     borderRadius: Radius.sm,
   },
+  introRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  introText: {
+    flex: 1,
+    gap: Spacing.half,
+  },
   removeAdsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -352,5 +408,9 @@ const styles = StyleSheet.create({
   dataButtonOutline: {
     backgroundColor: 'transparent',
     borderWidth: StyleSheet.hairlineWidth,
+  },
+  builtBy: {
+    alignItems: 'center',
+    paddingVertical: Spacing.three,
   },
 });

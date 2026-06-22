@@ -12,6 +12,7 @@ import {
 import { Radius, Spacing } from '@/constants/theme';
 import { listsRepo, type List } from '@/db';
 import { useTheme } from '@/hooks/use-theme';
+import { useTranslation } from '@/i18n/use-translation';
 
 interface Props {
   visible: boolean;
@@ -24,6 +25,7 @@ interface Props {
 /** Bottom-sheet style modal to create or edit a list (name + color + icon). */
 export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
   const theme = useTheme();
+  const { t } = useTranslation();
   const editing = !!list;
 
   const [name, setName] = useState('');
@@ -75,13 +77,14 @@ export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
           <View style={[styles.grabber, { backgroundColor: theme.border }]} />
         </View>
 
-        <ThemedText type="subtitle">{editing ? 'Edit list' : 'New list'}</ThemedText>
+        <ThemedText type="subtitle">{editing ? t('list.edit') : t('list.new')}</ThemedText>
 
         <TextInput
           value={name}
           onChangeText={setName}
-          placeholder="List name"
+          placeholder={t('list.name')}
           placeholderTextColor={theme.tabInactive}
+          accessibilityLabel={t('list.name')}
           style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
           autoFocus={!editing}
           returnKeyType="done"
@@ -89,7 +92,7 @@ export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
         />
 
         <ThemedText type="small" themeColor="textSecondary">
-          Color
+          {t('list.color')}
         </ThemedText>
         <View style={styles.swatchRow}>
           {LIST_COLORS.map((c) => (
@@ -98,6 +101,7 @@ export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
               onPress={() => setColor(c)}
               accessibilityRole="button"
               accessibilityLabel={`Color ${c}`}
+              accessibilityState={{ selected: color === c }}
               style={[
                 styles.swatch,
                 { backgroundColor: c },
@@ -108,7 +112,7 @@ export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
         </View>
 
         <ThemedText type="small" themeColor="textSecondary">
-          Icon
+          {t('list.icon')}
         </ThemedText>
         <View style={styles.iconRow}>
           {LIST_ICONS.map((ic) => (
@@ -117,6 +121,7 @@ export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
               onPress={() => setIcon(ic)}
               accessibilityRole="button"
               accessibilityLabel={`Icon ${ic}`}
+              accessibilityState={{ selected: icon === ic }}
               style={[
                 styles.iconButton,
                 { backgroundColor: theme.backgroundElement },
@@ -133,9 +138,13 @@ export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
 
         <View style={styles.actions}>
           {editing ? (
-            <Pressable onPress={handleDelete} hitSlop={8} accessibilityRole="button">
+            <Pressable
+              onPress={handleDelete}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.delete')}>
               <ThemedText type="smallBold" style={{ color: theme.danger }}>
-                Delete
+                {t('common.delete')}
               </ThemedText>
             </Pressable>
           ) : (
@@ -148,9 +157,10 @@ export function ListEditorModal({ visible, list, onClose, onSaved }: Props) {
               styles.saveButton,
               { backgroundColor: canSave ? theme.tint : theme.backgroundElement },
             ]}
-            accessibilityRole="button">
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !canSave }}>
             <ThemedText type="smallBold" style={{ color: canSave ? theme.background : theme.tabInactive }}>
-              {editing ? 'Save' : 'Create'}
+              {editing ? t('common.save') : t('common.create')}
             </ThemedText>
           </Pressable>
         </View>

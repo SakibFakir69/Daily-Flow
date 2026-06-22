@@ -6,6 +6,7 @@ import * as Notifications from 'expo-notifications';
  * prompts when the OS still allows asking.
  */
 export async function ensureNotificationPermissions(): Promise<boolean> {
+  
   const current = await Notifications.getPermissionsAsync();
   if (
     current.granted ||

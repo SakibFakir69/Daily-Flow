@@ -4,7 +4,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
  * Current schema version. Bump this and add an `if (version < N)` block in
  * `migrate()` for every forward-only schema change. Never edit a past block.
  */
-export const DATABASE_VERSION = 1;
+export const DATABASE_VERSION = 2;
 
 /**
  * Forward-only migration runner keyed on `PRAGMA user_version`.
@@ -25,7 +25,10 @@ export async function migrate(db: SQLiteDatabase): Promise<void> {
     version = 1;
   }
 
-  // Future: if (version < 2) { await migrateToV2(db); version = 2; }
+  if (version < 2) {
+    await migrateToV2(db);
+    version = 2;
+  }
 
   // `user_version` doesn't accept bound parameters; DATABASE_VERSION is a constant.
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
@@ -95,4 +98,14 @@ async function migrateToV1(db: SQLiteDatabase): Promise<void> {
        VALUES (1, 'system', 'en', 'free')`
     );
   });
+}
+
+/**
+ * v2: track when the first-run onboarding overview was completed/dismissed.
+ * Epoch ms, or NULL while it has never been seen (the trigger for showing it).
+ */
+async function migrateToV2(db: SQLiteDatabase): Promise<void> {
+  await db.execAsync(
+    'ALTER TABLE settings ADD COLUMN onboarding_completed_at INTEGER'
+  );
 }

@@ -93,6 +93,7 @@ const en = {
   'habits.streak': 'day streak',
   'habits.delete.title': 'Delete habit?',
   'habits.delete.message': 'This removes the habit and its streak.',
+  'habits.a11y.hint': 'Double tap to check off today. Long press to delete.',
 
   'pomodoro.title': 'Focus',
   'pomodoro.start': 'Start',
@@ -127,6 +128,24 @@ const en = {
   'common.completed': 'Task completed',
   'common.deleted': 'Task deleted',
   'common.rescheduled': 'Rescheduled to tomorrow',
+
+  'onboarding.skip': 'Skip',
+  'onboarding.next': 'Next',
+  'onboarding.start': 'Get started',
+  'onboarding.welcome.title': 'Welcome to DailyFlow',
+  'onboarding.welcome.body': 'Your calm, private space to plan the day and get things done.',
+  'onboarding.capture.title': 'Capture in seconds',
+  'onboarding.capture.body': 'Type “Call mom tomorrow 5pm !!” — DailyFlow reads the date, time, and priority for you.',
+  'onboarding.organize.title': 'Organize your way',
+  'onboarding.organize.body': 'Sort tasks into colorful lists, set priorities, and drag to reorder.',
+  'onboarding.habits.title': 'Build habits & focus',
+  'onboarding.habits.body': 'Keep daily streaks alive and run focus sessions with the built-in timer.',
+  'onboarding.private.title': 'Always yours, always offline',
+  'onboarding.private.body': 'No account, no cloud, no tracking. Works fully in airplane mode — forever.',
+
+  'settings.general': 'General',
+  'settings.intro.replay': 'Show intro again',
+  'settings.intro.replay.subtitle': 'Replay the welcome walkthrough.',
 } as const;
 
 const bn: Partial<Record<TranslationKey, string>> = {
@@ -215,6 +234,7 @@ const bn: Partial<Record<TranslationKey, string>> = {
   'habits.streak': 'দিনের ধারা',
   'habits.delete.title': 'অভ্যাস মুছবেন?',
   'habits.delete.message': 'এটি অভ্যাস ও এর ধারা মুছে ফেলবে।',
+  'habits.a11y.hint': 'আজকের জন্য টিক দিতে ডবল ট্যাপ করুন। মুছতে চেপে ধরুন।',
 
   'pomodoro.title': 'ফোকাস',
   'pomodoro.start': 'শুরু',
@@ -249,6 +269,24 @@ const bn: Partial<Record<TranslationKey, string>> = {
   'common.completed': 'কাজ সম্পন্ন',
   'common.deleted': 'কাজ মুছে ফেলা হয়েছে',
   'common.rescheduled': 'আগামীকালের জন্য পুনঃনির্ধারিত',
+
+  'onboarding.skip': 'এড়িয়ে যান',
+  'onboarding.next': 'পরবর্তী',
+  'onboarding.start': 'শুরু করুন',
+  'onboarding.welcome.title': 'DailyFlow-এ স্বাগতম',
+  'onboarding.welcome.body': 'দিনের পরিকল্পনা ও কাজ গুছিয়ে করার জন্য আপনার শান্ত, ব্যক্তিগত জায়গা।',
+  'onboarding.capture.title': 'সেকেন্ডেই লিখে ফেলুন',
+  'onboarding.capture.body': 'লিখুন “Call mom tomorrow 5pm !!” — DailyFlow নিজেই তারিখ, সময় ও অগ্রাধিকার বুঝে নেয়।',
+  'onboarding.organize.title': 'নিজের মতো গুছিয়ে নিন',
+  'onboarding.organize.body': 'রঙিন তালিকায় কাজ ভাগ করুন, অগ্রাধিকার দিন, আর টেনে সাজান।',
+  'onboarding.habits.title': 'অভ্যাস ও ফোকাস গড়ুন',
+  'onboarding.habits.body': 'দৈনিক ধারা বজায় রাখুন আর বিল্ট-ইন টাইমারে ফোকাস সেশন চালান।',
+  'onboarding.private.title': 'সবসময় আপনার, সবসময় অফলাইন',
+  'onboarding.private.body': 'কোনো অ্যাকাউন্ট নেই, ক্লাউড নেই, ট্র্যাকিং নেই। এয়ারপ্লেন মোডেও সম্পূর্ণ চলে — চিরকাল।',
+
+  'settings.general': 'সাধারণ',
+  'settings.intro.replay': 'ভূমিকা আবার দেখুন',
+  'settings.intro.replay.subtitle': 'স্বাগত ভ্রমণটি আবার চালান।',
 };
 
 const dictionaries: Record<LanguagePreference, Partial<Record<TranslationKey, string>>> = {

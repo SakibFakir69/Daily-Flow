@@ -4,11 +4,11 @@
     "slug": "DailyFlow",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/daily flow.png",
     "scheme": "dailyflow",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceSatyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/daily flow.png"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +17,9 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "softwareKeyboardLayoutMode": "resize",
+      "predictiveBackGestureEnabled": false,
+      "package": "com.sakibfakir.DailyFlow"
     },
     "web": {
       "output": "static",
@@ -39,16 +41,72 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "androidAppId": "ca-app-pub-6208140455870067~5828187533",
           "iosAppId": "ca-app-pub-3940256099942544~1458002511"
         }
       ],
       "expo-iap",
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "Today",
+              "label": "DailyFlow — Today",
+              "description": "Your tasks due today, at a glance.",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "previewImage": "./assets/images/icon.png",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.dailyflow.app",
+          "widgets": [
+            {
+              "name": "Today",
+              "displayName": "DailyFlow — Today",
+              "description": "Your tasks due today, at a glance.",
+              "supportedFamilies": ["systemSmall", "systemMedium"]
+            }
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "ExpoWidgetsTarget",
+                  "bundleIdentifier": "undefined.ExpoWidgetsTarget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.dailyflow.app"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "9d10bdf3-f278-4c33-bac7-b2ef51566d6b"
+      }
     }
   }
 }

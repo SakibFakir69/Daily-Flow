@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { isExpoGo } from '@/lib/runtime';
+
 /**
  * Notification category + action identifiers. Per the SDK 56 docs, category
  * identifiers must not contain ':' or '-'.
@@ -19,8 +21,14 @@ let configured = false;
  */
 export async function configureNotifications(): Promise<void> {
   if (configured) return;
-  configured = true;
+  // Expo Go can't deliver local notifications (no custom native binary); skip so
+  // we don't spam errors. Real scheduling happens in a dev/production build.
+  if (isExpoGo) return;
 
+  // The foreground handler is synchronous and harmless to re-set, so it's fine
+  // before the guard flips. The category/channel awaits below can fail (rare);
+  // we only latch `configured` once they succeed so a transient failure is
+  // retried on the next launch/foreground resync rather than being sticky.
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowBanner: true,
@@ -50,4 +58,6 @@ export async function configureNotifications(): Promise<void> {
       vibrationPattern: [0, 250, 250, 250],
     });
   }
+
+  configured = true;
 }

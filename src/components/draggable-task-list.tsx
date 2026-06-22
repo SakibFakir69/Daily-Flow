@@ -147,6 +147,7 @@ function DraggableRow({
           hitSlop={8}
           accessibilityRole="checkbox"
           accessibilityState={{ checked: completed }}
+          accessibilityLabel={completed ? 'Mark task incomplete' : 'Mark task complete'}
           style={[
             styles.checkbox,
             {
@@ -157,7 +158,11 @@ function DraggableRow({
           {completed ? <Ionicons name="checkmark" size={16} color={theme.background} /> : null}
         </Pressable>
 
-        <Pressable style={styles.body} onPress={() => onPressTask?.(task)}>
+        <Pressable
+          style={styles.body}
+          onPress={() => onPressTask?.(task)}
+          accessibilityRole="button"
+          accessibilityLabel={task.title}>
           <ThemedText
             type="default"
             numberOfLines={1}

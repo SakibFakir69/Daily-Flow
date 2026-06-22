@@ -7,6 +7,7 @@ import { tasksRepo } from '@/db';
 import { useTheme } from '@/hooks/use-theme';
 import { parseQuickAdd } from '@/lib/quick-parse';
 import { resyncAllReminders } from '@/notifications';
+import { refreshTodayWidget } from '@/widgets';
 
 interface Props {
   /** Called after a task is created so the screen can refetch. */
@@ -50,6 +51,8 @@ export function QuickAddBar({
       onAdded();
       // Schedule any reminder the new task implies (fire-and-forget).
       resyncAllReminders().catch(() => {});
+      // Reflect the new task on the home-screen widget (fire-and-forget, no-op on web/iOS).
+      refreshTodayWidget();
     } catch (error) {
       console.error('[DailyFlow] Failed to create task:', error);
     }

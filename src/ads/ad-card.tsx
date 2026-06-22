@@ -1,17 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import {
-  NativeAd,
-  NativeAdView,
-  NativeAsset,
-  NativeAssetType,
-  NativeMediaView,
-} from 'react-native-google-mobile-ads';
+// Type-only: erased at compile time so it never loads the native binary.
+import type { NativeAd } from 'react-native-google-mobile-ads';
 
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-import { NATIVE_AD_UNIT_ID } from './ads';
+import { getNativeAdUnitId, loadAdsModule } from './ads';
 
 /**
  * A Native Advanced ad rendered as a card that matches DailyFlow's task rows.
@@ -21,13 +16,17 @@ import { NATIVE_AD_UNIT_ID } from './ads';
  */
 export function AdCard() {
   const colors = useTheme();
+  // Loaded lazily; null in Expo Go / web where the native binary is absent.
+  const ads = loadAdsModule();
+  const adUnitId = getNativeAdUnitId();
   const [ad, setAd] = useState<NativeAd | null>(null);
 
   useEffect(() => {
+    if (!ads || !adUnitId) return;
     let active = true;
     let loadedAd: NativeAd | null = null;
 
-    NativeAd.createForAdRequest(NATIVE_AD_UNIT_ID)
+    ads.NativeAd.createForAdRequest(adUnitId)
       .then((next) => {
         if (!active) {
           next.destroy();
@@ -42,9 +41,11 @@ export function AdCard() {
       active = false;
       loadedAd?.destroy();
     };
-  }, []);
+  }, [ads, adUnitId]);
 
-  if (!ad) return null;
+  if (!ads || !ad) return null;
+
+  const { NativeAdView, NativeAsset, NativeAssetType, NativeMediaView } = ads;
 
   return (
     <NativeAdView

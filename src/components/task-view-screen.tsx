@@ -17,6 +17,7 @@ import { startOfTomorrowMs } from '@/lib/dates';
 import { hapticComplete } from '@/lib/haptics';
 import { openTask } from '@/lib/navigation';
 import { resyncAllReminders } from '@/notifications';
+import { refreshTodayWidget } from '@/widgets';
 
 interface Props {
   view: TaskView;
@@ -68,6 +69,7 @@ export function TaskViewScreen({
             forget(task.id);
             await refresh();
             await resyncAllReminders();
+            await refreshTodayWidget();
             // Completing a task is the natural break point for a capped
             // interstitial — the manager enforces the frequency caps.
             maybeShowInterstitial(adsEnabled);
@@ -94,6 +96,7 @@ export function TaskViewScreen({
           await tasksRepo.deleteTask(task.id);
           forget(task.id);
           await resyncAllReminders();
+          await refreshTodayWidget();
         },
         onUndo: () => unhide(task.id),
       });
@@ -111,6 +114,7 @@ export function TaskViewScreen({
           await tasksRepo.updateTask(task.id, { dueAt });
           forget(task.id);
           await resyncAllReminders();
+          await refreshTodayWidget();
         },
         onUndo: () => unhide(task.id),
       });
@@ -126,8 +130,10 @@ export function TaskViewScreen({
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={insets.top + Spacing.three}>
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}  
+        keyboardVerticalOffset={insets.top}  
+      >
+
         <TaskList
           tasks={tasks}
           listsById={listsById}

@@ -5,17 +5,29 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { initializeAds, useAdsEnabled } from '@/ads';
+import { OnboardingOverlay } from '@/components/onboarding/onboarding-overlay';
 import { UndoProvider } from '@/components/undo-snackbar';
 import { useDatabaseReady } from '@/hooks/use-database';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useTheme, useThemeMode } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n/use-translation';
-import { SettingsProvider } from '@/settings/settings-context';
+import { SettingsProvider, useSettings } from '@/settings/settings-context';
 
 /** Runs the notification lifecycle (resync + action handling) once the DB is ready. */
 function NotificationsBridge() {
   useNotifications();
   return null;
+}
+
+/**
+ * Shows the first-run motion overview until it's completed. Gated on `loaded`
+ * so the persisted flag — not the optimistic defaults — decides, avoiding a
+ * one-frame flash of onboarding for returning users.
+ */
+function OnboardingGate() {
+  const { settings, loaded, update } = useSettings();
+  if (!loaded || settings.onboardingCompletedAt !== null) return null;
+  return <OnboardingOverlay onDone={() => update({ onboardingCompletedAt: Date.now() })} />;
 }
 
 /** Initializes the ads SDK once, only for the free tier (no-op once purchased). */
@@ -101,6 +113,7 @@ function AppShell() {
           <Tabs.Screen name="stats" options={{ href: null }} />
           <Tabs.Screen name="explore" options={{ href: null }} />
         </Tabs>
+        <OnboardingGate />
       </UndoProvider>
     </ThemeProvider>
   );

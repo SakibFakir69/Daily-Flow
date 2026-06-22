@@ -8,8 +8,8 @@ import { Platform } from 'react-native';
  * While empty, the native layer falls back to Google's test unit IDs so the
  * integration is exercisable without risking a live account (see ./ads).
  */
-export const REAL_NATIVE_AD_UNIT_ID = '';
-export const REAL_INTERSTITIAL_AD_UNIT_ID = '';
+export const REAL_NATIVE_AD_UNIT_ID = 'ca-app-pub-6208140455870067/3981964845';
+export const REAL_INTERSTITIAL_AD_UNIT_ID = 'ca-app-pub-6208140455870067/1340057852';
 
 /** Interstitials only run on real mobile platforms (not Expo Go web / SSR). */
 export const adsSupportedPlatform = Platform.OS === 'android' || Platform.OS === 'ios';

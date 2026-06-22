@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 
 import { settingsRepo, tasksRepo, type Task } from '@/db';
 import { hasTimeComponent } from '@/lib/dates';
+import { isExpoGo } from '@/lib/runtime';
 import { ensureNotificationPermissions } from './permissions';
 import { applyQuietHours } from './quiet-hours';
 import { ANDROID_CHANNEL_ID, TASK_REMINDER_CATEGORY, configureNotifications } from './setup';
@@ -51,8 +52,44 @@ async function scheduleOne(taskId: string, title: string, whenMs: number): Promi
  *
  * No-ops (after cancelling) when there's nothing to schedule, so users with no
  * reminders are never prompted for permission.
+ *
+ * Serialized via an in-flight latch with a trailing re-run: rapid
+ * background↔foreground toggling (or a mutation landing mid-resync) can fire
+ * several resyncs at once, and two overlapping cancel+rebuild passes could
+ * briefly leave fewer notifications scheduled. While a pass is running, further
+ * calls don't start their own — they flag a single trailing run that executes
+ * once the current pass finishes. The trailing run guarantees a fresh pass
+ * reads post-mutation DB state (a caller awaiting a just-committed change can't
+ * be coalesced into a pass that already queried the DB before the commit).
  */
+let inFlight: Promise<void> | null = null;
+let rerunQueued = false;
+
 export async function resyncAllReminders(): Promise<void> {
+  // No notification engine in Expo Go — skip the whole cancel+rebuild pass.
+  if (isExpoGo) return;
+  if (inFlight) {
+    // A pass is already running; ensure exactly one fresh pass follows it.
+    rerunQueued = true;
+    return inFlight;
+  }
+  inFlight = (async () => {
+    try {
+      await doResync();
+      // Drain any resync requested while we were running, until none remain.
+      while (rerunQueued) {
+        rerunQueued = false;
+        await doResync();
+      }
+    } finally {
+      inFlight = null;
+      rerunQueued = false;
+    }
+  })();
+  return inFlight;
+}
+
+async function doResync(): Promise<void> {
   await configureNotifications();
   await Notifications.cancelAllScheduledNotificationsAsync();
 

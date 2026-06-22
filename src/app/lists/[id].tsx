@@ -15,6 +15,7 @@ import { listsRepo, tasksRepo, type List, type Task } from '@/db';
 import { useTheme } from '@/hooks/use-theme';
 import { openTask } from '@/lib/navigation';
 import { resyncAllReminders } from '@/notifications';
+import { refreshTodayWidget } from '@/widgets';
 
 export default function ListDetailScreen() {
   const theme = useTheme();
@@ -50,6 +51,7 @@ export default function ListDetailScreen() {
       }
       await refresh();
       resyncAllReminders().catch(() => {});
+      refreshTodayWidget();
     },
     [refresh]
   );
@@ -76,7 +78,9 @@ export default function ListDetailScreen() {
         <Pressable
           onPress={() => setEditorVisible(true)}
           hitSlop={8}
+          accessibilityRole="button"
           accessibilityLabel="Edit list"
+          accessibilityState={{ disabled: !list }}
           disabled={!list}>
           <Ionicons name="ellipsis-horizontal" size={22} color={theme.tabInactive} />
         </Pressable>

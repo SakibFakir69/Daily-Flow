@@ -96,6 +96,10 @@ export default function HabitsScreen() {
                   key={habit.id}
                   onPress={() => toggle(habit)}
                   onLongPress={() => confirmDelete(habit)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked }}
+                  accessibilityLabel={habit.title}
+                  accessibilityHint={t('habits.a11y.hint')}
                   style={[styles.row, { backgroundColor: theme.card, borderColor: theme.border }]}>
                   <View
                     style={[
@@ -137,6 +141,7 @@ export default function HabitsScreen() {
               returnKeyType="done"
               placeholder={t('habits.add')}
               placeholderTextColor={theme.tabInactive}
+              accessibilityLabel={t('habits.add')}
               style={[styles.input, { color: theme.text }]}
             />
           </View>

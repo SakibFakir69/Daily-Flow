@@ -6,7 +6,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useTranslation } from '@/i18n/use-translation';
 import { openSearch } from '@/lib/navigation';
 
-/** All: every top-level task regardless of date or list. No default due date. */
+
 export default function AllScreen() {
   const { t } = useTranslation();
   const theme = useTheme();

@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/empty-state';
 import { ListEditorModal } from '@/components/list-editor-modal';
@@ -34,65 +34,71 @@ export default function ListsScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <View style={[styles.headerRow, { paddingTop: insets.top }]}>
-        <ScreenHeader title={t('lists.title')} />
-        <Pressable
-          onPress={openCreate}
-          hitSlop={8}
-          style={[styles.addButton, { backgroundColor: theme.tint }]}
-          accessibilityRole="button"
-          accessibilityLabel="New list">
-          <Ionicons name="add" size={22} color={theme.background} />
-        </Pressable>
-      </View>
+      <SafeAreaView >
+        <View style={[styles.headerRow, { paddingTop: insets.top }]}>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {lists.length === 0 ? (
-          <EmptyState
-            icon="folder-open-outline"
-            title={t('lists.empty.title')}
-            subtitle={t('lists.empty.subtitle')}
-          />
-        ) : (
-          lists.map((list) => (
-            <Pressable
-              key={list.id}
-              onPress={() => openList(list.id)}
-              onLongPress={() => openEdit(list)}
-              style={[styles.listRow, { backgroundColor: theme.card, borderColor: theme.border }]}
-              accessibilityRole="button"
-              accessibilityLabel={list.name}>
-              <View style={[styles.iconWrap, { backgroundColor: list.color ?? theme.tabInactive }]}>
-                <Ionicons
-                  name={(list.icon as keyof typeof Ionicons.glyphMap) ?? 'list'}
-                  size={18}
-                  color={theme.background}
-                />
-              </View>
-              <ThemedText type="default" style={styles.listName} numberOfLines={1}>
-                {list.name}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {counts[list.id] ?? 0}
-              </ThemedText>
+
+          <View style={{ flex: 1 }}>
+            <ScreenHeader title={t('lists.title')} />
+          </View>
+          <Pressable
+            onPress={openCreate}
+            hitSlop={8}
+            style={[styles.addButton, { backgroundColor: theme.tint }]}
+            accessibilityRole="button"
+            accessibilityLabel="New list">
+            <Ionicons name="add" size={22} color={theme.background} />
+          </Pressable>
+        </View>
+
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          {lists.length === 0 ? (
+            <EmptyState
+              icon="folder-open-outline"
+              title={t('lists.empty.title')}
+              subtitle={t('lists.empty.subtitle')}
+            />
+          ) : (
+            lists.map((list) => (
               <Pressable
-                onPress={() => openEdit(list)}
-                hitSlop={8}
+                key={list.id}
+                onPress={() => openList(list.id)}
+                onLongPress={() => openEdit(list)}
+                style={[styles.listRow, { backgroundColor: theme.card, borderColor: theme.border }]}
                 accessibilityRole="button"
-                accessibilityLabel={`Edit ${list.name}`}>
-                <Ionicons name="ellipsis-horizontal" size={18} color={theme.tabInactive} />
+                accessibilityLabel={list.name}>
+                <View style={[styles.iconWrap, { backgroundColor: list.color ?? theme.tabInactive }]}>
+                  <Ionicons
+                    name={(list.icon as keyof typeof Ionicons.glyphMap) ?? 'list'}
+                    size={18}
+                    color={theme.background}
+                  />
+                </View>
+                <ThemedText type="default" style={styles.listName} numberOfLines={1}>
+                  {list.name}
+                </ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {counts[list.id] ?? 0}
+                </ThemedText>
+                <Pressable
+                  onPress={() => openEdit(list)}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Edit ${list.name}`}>
+                  <Ionicons name="ellipsis-horizontal" size={18} color={theme.tabInactive} />
+                </Pressable>
               </Pressable>
-            </Pressable>
-          ))
-        )}
-      </ScrollView>
+            ))
+          )}
+        </ScrollView>
 
-      <ListEditorModal
-        visible={editorVisible}
-        list={editing}
-        onClose={() => setEditorVisible(false)}
-        onSaved={refresh}
-      />
+        <ListEditorModal
+          visible={editorVisible}
+          list={editing}
+          onClose={() => setEditorVisible(false)}
+          onSaved={refresh}
+        />
+      </SafeAreaView>
     </ThemedView>
   );
 }
@@ -105,7 +111,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingRight: Spacing.three,
+    paddingHorizontal: Spacing.three,
   },
   addButton: {
     width: 36,

@@ -8,6 +8,7 @@ import { translate, type TranslationKey } from './translations';
  * Re-renders when the language changes (settings context updates).
  */
 export function useTranslation() {
+  
   const { settings } = useSettings();
   const language = settings.language;
 
