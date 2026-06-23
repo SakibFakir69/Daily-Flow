@@ -76,7 +76,7 @@ export default function HabitsScreen() {
 
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={insets.top + Spacing.three}>
         <ScrollView
           contentContainerStyle={habits.length === 0 ? styles.emptyContent : styles.content}
