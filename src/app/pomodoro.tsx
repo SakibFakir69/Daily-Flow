@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
@@ -108,6 +108,7 @@ export default function PomodoroScreen() {
         ) : null}
 
         <ThemedText style={[styles.clock, { color: theme.text }]}>{formatTime(secondsLeft)}</ThemedText>
+        
 
         <View style={styles.durations}>
           {DURATIONS.map((min) => {
@@ -126,6 +127,7 @@ export default function PomodoroScreen() {
                 ]}>
                 <ThemedText type="small" style={{ color: active ? theme.background : theme.text }}>
                   {min}m
+                  
                 </ThemedText>
               </Pressable>
             );
@@ -180,8 +182,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   clock: {
-    fontSize: 72,
-    fontWeight: '200',
+    fontSize: 33,
+    fontWeight: '400',
     fontVariant: ['tabular-nums'],
   },
   durations: {
