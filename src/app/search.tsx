@@ -49,7 +49,6 @@ export default function SearchScreen() {
   }, [lists]);
 
   const hasQuery = query.trim().length > 0;
-
   return (
     <ThemedView style={styles.container}>
       <View style={[styles.searchBar, { paddingTop: insets.top + Spacing.two }]}>
